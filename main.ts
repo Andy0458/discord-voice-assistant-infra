@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { App, TerraformStack } from "cdktf";
 
 import { GoogleProvider } from "@cdktf/provider-google/lib/provider";
-import { StorageBucket } from "@cdktf/provider-google/lib/storage-bucket";
+import { CloudfunctionsFunction } from "@cdktf/provider-google/lib/cloudfunctions-function";
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -14,12 +14,15 @@ class MyStack extends TerraformStack {
       region: "us-central1"
     });
 
-    new StorageBucket(this, "TestBucket", {
-      name: "test-bucket-discord-voiceassistant",
-      location: "US",
-      labels: {
-        "test_label": "test_value"
-      }
+    new CloudfunctionsFunction(this, "cloudFunction", {
+      name: "discord-interactions",
+      runtime: "go120",
+      triggerHttp: true,
+      httpsTriggerSecurityLevel: "SECURE_ALWAYS",
+      sourceRepository: {
+        url: "https://source.developers.google.com/projects/discord-voiceassistant/repos/discord-voice-assistant/moveable-aliases/main/paths/"
+      },
+      entryPoint: "HelloHTTP"
     });
   }
 }
